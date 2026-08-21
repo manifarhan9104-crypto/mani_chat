@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'chat.dart';
+
 
 class HomePage extends StatelessWidget {
 
@@ -15,7 +17,7 @@ class HomePage extends StatelessWidget {
 
     {
       "name":"گروه دوستان",
-      "message":"یک عکس ارسال شد",
+      "message":"یک عکس ارسال شد 📷",
       "time":"11:20"
     },
 
@@ -28,6 +30,7 @@ class HomePage extends StatelessWidget {
   ];
 
 
+
   @override
   Widget build(BuildContext context){
 
@@ -37,21 +40,25 @@ class HomePage extends StatelessWidget {
 
       child: Scaffold(
 
+
         appBar: AppBar(
 
           title:
           const Text("مانی چت"),
 
+
           actions:[
+
 
             IconButton(
 
               icon:
               const Icon(Icons.search),
 
-              onPressed: (){},
+              onPressed:(){},
 
             ),
+
 
             IconButton(
 
@@ -60,24 +67,52 @@ class HomePage extends StatelessWidget {
 
               onPressed:(){},
 
-            )
+            ),
 
           ],
 
         ),
 
 
+
         body:
 
         ListView.builder(
 
+
           itemCount: chats.length,
+
 
           itemBuilder:(context,index){
 
+
             return ListTile(
 
+
+              onTap:(){
+
+
+                Navigator.push(
+
+                  context,
+
+                  MaterialPageRoute(
+
+                    builder:(context)=>
+
+                    const ChatPage(),
+
+                  ),
+
+                );
+
+
+              },
+
+
+
               leading:
+
 
               const CircleAvatar(
 
@@ -89,54 +124,74 @@ class HomePage extends StatelessWidget {
               ),
 
 
+
               title:
+
 
               Text(
 
                 chats[index]["name"]!,
 
                 style:
+
                 const TextStyle(
-                  fontWeight: FontWeight.bold
+
+                  fontWeight:
+                  FontWeight.bold,
+
                 ),
 
               ),
 
 
+
               subtitle:
+
 
               Text(
 
-                chats[index]["message"]!
+                chats[index]["message"]!,
 
               ),
+
 
 
               trailing:
 
+
               Text(
 
-                chats[index]["time"]!
+                chats[index]["time"]!,
 
               ),
 
+
             );
+
 
           },
 
+
         ),
+
 
 
         floatingActionButton:
 
+
         FloatingActionButton(
 
           child:
+
           const Icon(Icons.edit),
+
 
           onPressed:(){},
 
+
         ),
+
+
 
       ),
 
