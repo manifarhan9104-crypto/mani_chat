@@ -1,86 +1,357 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+import 'home.dart';
+import 'register.dart';
+
 
 class LoginPage extends StatefulWidget {
 
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<LoginPage> createState() =>
+      _LoginPageState();
 
 }
 
 
-class _LoginPageState extends State<LoginPage>{
+class _LoginPageState
+    extends State<LoginPage> {
 
-  final phoneController = TextEditingController();
+  final phoneController =
+      TextEditingController();
+
+  final passwordController =
+      TextEditingController();
+
+  bool loading = false;
 
 
-  void login(){
+  Future<void> login() async {
 
-    if(phoneController.text.isNotEmpty){
+    if (
+      phoneController.text.isEmpty ||
+      passwordController.text.isEmpty
+    ) {
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
 
         const SnackBar(
-          content: Text("ورود موفق بود")
-        )
+          content:
+              Text("شماره موبایل و رمز عبور را وارد کنید"),
+        ),
+
+      );
+
+      return;
+
+    }
+
+
+    setState(() {
+      loading = true;
+    });
+
+
+    try {
+
+      final response = await http.post(
+
+        Uri.parse(
+          "http://YOUR_SERVER_IP:3000/login"
+        ),
+
+        headers: {
+
+          "Content-Type":
+              "application/json"
+
+        },
+
+        body: jsonEncode({
+
+          "phone":
+              phoneController.text,
+
+          "password":
+              passwordController.text
+
+        }),
+
+      );
+
+
+      final data =
+          jsonDecode(response.body);
+
+
+      if (!mounted) return;
+
+
+      if (response.statusCode == 200) {
+
+        Navigator.pushReplacement(
+
+          context,
+
+          MaterialPageRoute(
+
+            builder: (context) =>
+                const HomePage(),
+
+          ),
+
+        );
+
+      } else {
+
+        ScaffoldMessenger.of(context)
+            .showSnackBar(
+
+          SnackBar(
+            content:
+                Text(data["message"] ?? "ورود ناموفق بود"),
+          ),
+
+        );
+
+      }
+
+
+    } catch (e) {
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+
+        const SnackBar(
+          content:
+              Text("اتصال به سرور برقرار نشد"),
+        ),
 
       );
 
     }
 
+
+    setState(() {
+      loading = false;
+    });
+
   }
 
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
 
     return Directionality(
 
-      textDirection: TextDirection.rtl,
+      textDirection:
+          TextDirection.rtl,
 
       child: Scaffold(
 
-        appBar: AppBar(
-          title: const Text("ورود به مانی چت"),
-        ),
+        body: SafeArea(
 
+          child: Padding(
 
-        body: Padding(
+            padding:
+                const EdgeInsets.all(24),
 
-          padding: const EdgeInsets.all(20),
+            child: Column(
 
-          child: Column(
+              mainAxisAlignment:
+                  MainAxisAlignment.center,
 
-            children: [
+              children: [
 
-              TextField(
+                const CircleAvatar(
 
-                controller: phoneController,
+                  radius: 45,
 
-                keyboardType: TextInputType.phone,
-
-                decoration: const InputDecoration(
-
-                  labelText: "شماره موبایل"
+                  child:
+                      Icon(
+                        Icons.chat,
+                        size: 45,
+                      ),
 
                 ),
 
-              ),
+
+                const SizedBox(
+                  height: 20
+                ),
 
 
-              const SizedBox(height:20),
+                const Text(
+
+                  "مانی چت",
+
+                  style:
+                      TextStyle(
+
+                    fontSize: 30,
+
+                    fontWeight:
+                        FontWeight.bold,
+
+                  ),
+
+                ),
 
 
-              ElevatedButton(
+                const SizedBox(
+                  height: 8
+                ),
 
-                onPressed: login,
 
-                child: const Text("ورود"),
+                const Text(
+                  "پیام‌رسان فارسی شما",
+                ),
 
-              )
 
-            ],
+                const SizedBox(
+                  height: 35
+                ),
+
+
+                TextField(
+
+                  controller:
+                      phoneController,
+
+                  keyboardType:
+                      TextInputType.phone,
+
+                  decoration:
+                      const InputDecoration(
+
+                    labelText:
+                        "شماره موبایل",
+
+                    prefixIcon:
+                        Icon(Icons.phone),
+
+                    border:
+                        OutlineInputBorder(),
+
+                  ),
+
+                ),
+
+
+                const SizedBox(
+                  height: 15
+                ),
+
+
+                TextField(
+
+                  controller:
+                      passwordController,
+
+                  obscureText: true,
+
+                  decoration:
+                      const InputDecoration(
+
+                    labelText:
+                        "رمز عبور",
+
+                    prefixIcon:
+                        Icon(Icons.lock),
+
+                    border:
+                        OutlineInputBorder(),
+
+                  ),
+
+                ),
+
+
+                const SizedBox(
+                  height: 20
+                ),
+
+
+                SizedBox(
+
+                  width:
+                      double.infinity,
+
+                  height: 50,
+
+                  child:
+                      ElevatedButton(
+
+                    onPressed:
+                        loading
+                            ? null
+                            : login,
+
+                    child:
+
+                        loading
+
+                            ? const SizedBox(
+
+                                width: 25,
+
+                                height: 25,
+
+                                child:
+                                    CircularProgressIndicator(),
+
+                              )
+
+                            : const Text(
+                                "ورود"
+                              ),
+
+                  ),
+
+                ),
+
+
+                const SizedBox(
+                  height: 15
+                ),
+
+
+                TextButton(
+
+                  onPressed: () {
+
+                    Navigator.push(
+
+                      context,
+
+                      MaterialPageRoute(
+
+                        builder: (context) =>
+                            const RegisterPage(),
+
+                      ),
+
+                    );
+
+                  },
+
+                  child:
+                      const Text(
+                        "حساب کاربری ندارید؟ ثبت‌نام کنید"
+                      ),
+
+                ),
+
+              ],
+
+            ),
 
           ),
 
